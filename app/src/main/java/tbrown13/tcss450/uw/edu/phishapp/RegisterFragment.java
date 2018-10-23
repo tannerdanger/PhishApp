@@ -4,12 +4,13 @@ package tbrown13.tcss450.uw.edu.phishapp;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+
+import tbrown13.tcss450.uw.edu.phishapp.model.Credentials;
 
 
 /**
@@ -21,7 +22,7 @@ import android.widget.EditText;
 public class RegisterFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
-
+    private Credentials mCredentials;
     public RegisterFragment() {
         // Required empty public constructor
     }
@@ -39,10 +40,12 @@ public class RegisterFragment extends Fragment {
         final EditText uname = (EditText)view.findViewById(R.id.register_edittext_uname);
 
         b.setOnClickListener(v ->{
+
             String pass1 = pw.getText().toString();
             String pass2 = pwconfirm.getText().toString();
             String user = uname.getText().toString();
 
+            mCredentials = new Credentials.Builder(user, pass1).build();
             boolean isValid = true;
 
             if(pass1.compareTo(pass2) != 0){
@@ -76,7 +79,7 @@ public class RegisterFragment extends Fragment {
             }
 
             if(isValid)
-                mListener.onFragmentInteraction_Registered(user, pass1);
+                mListener.onRegisterSuccess(mCredentials);
 
         });
 
@@ -117,6 +120,6 @@ public class RegisterFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
 
-        void onFragmentInteraction_Registered(String username, String password);
+        void onRegisterSuccess(Credentials c);
     }
 }

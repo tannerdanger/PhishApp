@@ -30,16 +30,6 @@ public class HomeActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
-
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -53,8 +43,11 @@ public class HomeActivity extends AppCompatActivity
         //Set display to display fragment
         DisplayFragment dfrag = new DisplayFragment();
         Bundle args = new Bundle();
-        args.putString("email", getIntent().getStringExtra("email"));
-        args.putString("pw", getIntent().getStringExtra("pw"));
+
+        args.putSerializable("credentials", getIntent().getSerializableExtra("credentials"));
+
+//        args.putString("email", getIntent().getStringExtra("email"));
+//        args.putString("pw", getIntent().getStringExtra("pw"));
         dfrag.setArguments(args);
         loadFragment(dfrag);
 

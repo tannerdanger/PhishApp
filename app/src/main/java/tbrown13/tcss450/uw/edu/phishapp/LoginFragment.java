@@ -4,12 +4,13 @@ import android.content.Context;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+
+import tbrown13.tcss450.uw.edu.phishapp.model.Credentials;
 
 
 /**
@@ -21,7 +22,7 @@ import android.widget.EditText;
 public class LoginFragment extends Fragment  {
 
     private OnFragmentInteractionListener mListener;
-
+    private Credentials mCredentials;
  //   private View.OnClickListener buttonListener;
 
     public LoginFragment() {
@@ -46,9 +47,11 @@ public class LoginFragment extends Fragment  {
                 String password = pw.getText().toString();
                 String username = uname.getText().toString();
 
+                mCredentials = new Credentials.Builder(username, password).build();
+
                 if(username.contains("@")
                         && password.compareTo("")!=0) {
-                    mListener.onFragmentInteraction_Login(username, password);
+                    mListener.onLoginSuccess(mCredentials);
                 }else{
                     if(!username.contains("@"))
                         uname.setError("Username is not an email");
@@ -66,7 +69,7 @@ public class LoginFragment extends Fragment  {
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.onFragmentInteraction_Register();
+                mListener.onRegisterClicked();
             }
         });
 
@@ -106,9 +109,9 @@ public class LoginFragment extends Fragment  {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    public interface OnFragmentInteractionListener extends WaitFragment.OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction_Login(String username, String password);
-        void onFragmentInteraction_Register();
+        void onLoginSuccess(Credentials c);
+        void onRegisterClicked();
     }
 }
