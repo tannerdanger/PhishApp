@@ -10,7 +10,9 @@ import android.view.Display;
 
 import tbrown13.tcss450.uw.edu.phishapp.model.Credentials;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.OnFragmentInteractionListener, RegisterFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements
+        LoginFragment.OnFragmentInteractionListener,
+        RegisterFragment.OnFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,9 +20,9 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnF
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
-            if (findViewById(R.id.frame_main_container) != null) { //TODO: frame_main_fragment_container??
+            if (findViewById(R.id.frame_main_fragment_container) != null) { //Good
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.frame_main_container, new LoginFragment())
+                        .add(R.id.frame_main_fragment_container, new LoginFragment())
                         .commit();
             }
         }
@@ -29,11 +31,11 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnF
 
     @Override
     public void onLoginSuccess(Credentials creds) {
-
+        Log.wtf("Main Activity", "Started onLoginSuccess in Main Activity");
         Intent i = new Intent(getApplicationContext(), HomeActivity.class);
         i.putExtra("credentials", creds);
-//        i.putExtra("pw", password);
         startActivity(i);
+        Log.wtf("Main Activity", "Ended onWaitFragmentInteractionHide in Main Activity");
     }
 
     @Override
@@ -41,45 +43,52 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnF
 
         getSupportFragmentManager().popBackStack();
         loadFragment(new RegisterFragment());
-//        FragmentTransaction transaction = getSupportFragmentManager()
-//                .beginTransaction()
-//                .replace(R.id.frame_main_container, new RegisterFragment())
-//                .addToBackStack(null);
-//
-//        transaction.commit();
+
     }
 
     @Override
     public void onRegisterSuccess(Credentials creds){
+        Log.wtf("Main Activity", "Started onRegisterSuccess in Main Activity");
+        //getSupportFragmentManager().popBackStack();
 
-        getSupportFragmentManager().popBackStack();
+        Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+        i.putExtra("credentials", creds);
+        startActivity(i);
 
+        Log.wtf("Main Activity", "ended onRegisterSuccess in Main Activity");
    }
 
    private void loadFragment(Fragment frag){
-
+        Log.wtf("Main Activity", "Started Load Fragment in Main Activity");
        FragmentTransaction transaction = getSupportFragmentManager()
                .beginTransaction()
+//               .replace(R.id.frame_main_fragment_container, frag)
                .replace(R.id.frame_main_fragment_container, frag)
                .addToBackStack(null);
        transaction.commit();
+       Log.wtf("Main Activity", "ended Load Fragment in Main Activity");
    }
 
 
     @Override
     public void onWaitFragmentInteractionShow() {
+        Log.wtf("Main Activity", "Started onWaitFragmentInteractionShow in Main Activity");
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.frame_main_fragment_container, new WaitFragment(), "WAIT")
                 .addToBackStack(null)
                 .commit();
+        Log.wtf("Main Activity", "ended onWaitFragmentInteractionShow in Main Activity");
     }
 
     @Override
     public void onWaitFragmentInteractionHide() {
+        Log.wtf("Main Activity", "Started onWaitFragmentInteractionHide in Main Activity");
         getSupportFragmentManager()
                 .beginTransaction()
                 .remove(getSupportFragmentManager().findFragmentByTag("WAIT"))
                 .commit();
+        Log.wtf("Main Activity", "Ended onWaitFragmentInteractionHide in Main Activity");
     }
+
 }

@@ -12,6 +12,10 @@
             android:id="@+id/blogFragment"
             android:icon="@drawable/ic_blog_black_24dp"
             android:title="Blog Posts" />
+        <item
+            android:id="@+id/setFragment"
+            android:icon="@drawable/ic_music_note_black_24dp"
+            android:title="Set List" />
 
     </group>
 

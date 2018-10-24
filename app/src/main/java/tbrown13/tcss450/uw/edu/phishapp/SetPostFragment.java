@@ -1,6 +1,7 @@
 package tbrown13.tcss450.uw.edu.phishapp;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Html;
@@ -10,21 +11,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import tbrown13.tcss450.uw.edu.phishapp.blog.BlogPost;
+import tbrown13.tcss450.uw.edu.phishapp.set.SetPost;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link BlogPostFragment.OnFragmentInteractionListener} interface
+ * {@link SetPostFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class BlogPostFragment extends Fragment {
+public class SetPostFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private String mURL;
 
-    public BlogPostFragment() {
+    public SetPostFragment() {
         // Required empty public constructor
     }
 
@@ -32,8 +33,8 @@ public class BlogPostFragment extends Fragment {
     public void onStart(){
         super.onStart();
         if(getArguments() != null){
-            BlogPost blog = (BlogPost) getArguments().getSerializable("blog");
-            updateContent(blog);
+            SetPost set = (SetPost)getArguments().getSerializable("set");
+            updateContent(set);
         }
     }
 
@@ -41,11 +42,11 @@ public class BlogPostFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_blog_post, container, false);
+        View v = inflater.inflate(R.layout.fragment_set_post, container, false);
 
-        Button b = (Button)v.findViewById(R.id.blogpost_button_fullpost);
+        Button b = (Button)v.findViewById(R.id.setpost_button_fullpost);
         b.setOnClickListener(v1 -> {
-            mListener.onBlogFragmentInteraction(mURL);
+            mListener.onSetFragmentInteraction(mURL);
         });
 
         return v;
@@ -82,20 +83,23 @@ public class BlogPostFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onBlogFragmentInteraction(String blogURL);
+        void onSetFragmentInteraction(String setUrl);
     }
 
+    private void updateContent(SetPost set){
 
-    private void updateContent(BlogPost blog){
-        TextView tv = getActivity().findViewById(R.id.blogpost_tv_setTitle);
-        tv.setText(blog.getTitle());
+        mURL = set.getSetUrl();
 
-        tv = getActivity().findViewById(R.id.blogpost_tv_postdate);
-        tv.setText(blog.getPubDate());
+        TextView tv = getActivity().findViewById(R.id.setpost_tv_setdate);
+        tv.setText(set.getSetDate());
 
-        tv = getActivity().findViewById(R.id.blogpost_tv_content);
-        tv.setText(Html.fromHtml(blog.getTeaser(), 0));
+        tv =getActivity().findViewById(R.id.setpost_tv_setLoc);
+        tv.setText(set.getSetLocation());
 
-        mURL = blog.getUrl();
+        tv =getActivity().findViewById(R.id.setpost_tv_data);
+        tv.setText(Html.fromHtml(set.getSetData(), 0));
+
+        tv =getActivity().findViewById(R.id.setpost_tv_notes);
+        tv.setText(Html.fromHtml(set.getSetNotes(), 0));
     }
 }

@@ -12,16 +12,29 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import tbrown13.tcss450.uw.edu.phishapp.blog.BlogPost;
+import tbrown13.tcss450.uw.edu.phishapp.set.SetPost;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         BlogFragment.OnListFragmentInteractionListener,
-        BlogPostFragment.OnFragmentInteractionListener {
+        BlogPostFragment.OnFragmentInteractionListener,
+        WaitFragment.OnFragmentInteractionListener,
+        SetFragment.OnListFragmentInteractionListener,
+        SetPostFragment.OnFragmentInteractionListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +59,7 @@ public class HomeActivity extends AppCompatActivity
 
         args.putSerializable("credentials", getIntent().getSerializableExtra("credentials"));
 
-//        args.putString("email", getIntent().getStringExtra("email"));
-//        args.putString("pw", getIntent().getStringExtra("pw"));
+
         dfrag.setArguments(args);
         loadFragment(dfrag);
 
@@ -101,7 +113,35 @@ public class HomeActivity extends AppCompatActivity
             dfrag.setArguments(args);
             loadFragment(dfrag);
         } else if (id == R.id.blogFragment) {
-            loadFragment(new BlogFragment());
+            //loadFragment(new BlogFragment());
+            Uri uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_phish))
+                    .appendPath(getString(R.string.ep_blog))
+                    .appendPath(getString(R.string.ep_get))
+                    .build();
+
+            new GetAsyncTask.Builder(uri.toString())
+                    .onPreExecute(this::onWaitFragmentInteractionShow)
+                    .onPostExecute(this::handleBlogGetOnPostExecute)
+                    .build().execute();
+
+        } else if (id == R.id.setFragment) {
+
+            Uri uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_phish))
+                    .appendPath(getString(R.string.ep_setlist))
+                    .appendPath(getString(R.string.ep_recent))
+                    .build();
+
+            new GetAsyncTask.Builder(uri.toString())
+                    .onPreExecute(this::onWaitFragmentInteractionShow)
+                    .onPostExecute(this::handleSetGetOnPostExecute)
+                    .build().execute();
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -109,14 +149,6 @@ public class HomeActivity extends AppCompatActivity
         return true;
     }
 
-    /************ Tanners methods *******/
-    private void loadFragment(Fragment frag){
-        FragmentTransaction transaction = getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, frag)
-                .addToBackStack(null);
-        transaction.commit();
-    }
 
     @Override
     public void onListFragmentInteraction(BlogPost blog) {
@@ -142,5 +174,163 @@ public class HomeActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void onWaitFragmentInteractionShow() {
+        Log.wtf("Home Activity", "Started onWaitFragmentInteractionShow in Home Activity");
+        getSupportFragmentManager()
+                .beginTransaction()
+                //.add(R.id.frame_main_fragment_container, new WaitFragment(), "WAIT")fragmentContainer
+                .add(R.id.fragmentContainer, new WaitFragment(), "WAIT")
+                .addToBackStack(null)
+                .commit();
+        Log.wtf("Home Activity", "Ended onWaitFragmentInteractionShow in Home Activity");
+    }
+
+    @Override
+    public void onWaitFragmentInteractionHide() {
+        Log.wtf("Home Activity", "Started onWaitFragmentInteractionHide in Home Activity");
+        getSupportFragmentManager()
+                .beginTransaction()
+                .remove(getSupportFragmentManager().findFragmentByTag("WAIT"))
+                .commit();
+        Log.wtf("Home Activity", "Ended onWaitFragmentInteractionHide in Home Activity");
+    }
+
+    private void handleSetGetOnPostExecute(final String result){
+        //parse JSON
+        try {
+            JSONObject root = new JSONObject(result);
+            if (root.has("response")) {
+                JSONObject response = root.getJSONObject("response");
+                if(response.has("data")){
+                    JSONArray data = response.getJSONArray("data");
+
+                    List<SetPost> sets = new ArrayList<>();
+
+                    for(int i = 0; i < data.length(); i++){
+                        JSONObject jsonset = data.getJSONObject(i);
+                        sets.add(new SetPost.Builder(
+                                jsonset.getString("showdate"),
+                                jsonset.getString("location"),
+                                jsonset.getString("venue"))
+                                .addUrl(jsonset.getString("url"))
+                                .addData(jsonset.getString("setlistdata"))
+                                .addNotes(jsonset.getString("setlistnotes"))
+                                .build());
+                    }
+                    SetPost[] setsAsArray = new SetPost[sets.size()];
+                    setsAsArray = sets.toArray(setsAsArray);
+
+                    Bundle args = new Bundle();
+                    args.putSerializable(SetFragment.ARG_SET_LIST, setsAsArray);
+                    Fragment frag = new SetFragment();
+                    frag.setArguments(args);
+
+                    onWaitFragmentInteractionHide();
+                    loadFragment(frag);
+
+                } else {
+                    Log.e("ERROR!", "No data array");
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+        }
+    }
+
+    private void handleBlogGetOnPostExecute(final String result) {
+        //parse JSON
+
+        try {
+            JSONObject root = new JSONObject(result);
+            if (root.has("response")) {
+                JSONObject response = root.getJSONObject("response");
+                if (response.has("data")) {
+                    JSONArray data = response.getJSONArray("data");
+
+                    List<BlogPost> blogs = new ArrayList<>();
+
+                    for(int i = 0; i < data.length(); i++) {
+                        JSONObject jsonBlog = data.getJSONObject(i);
+                        blogs.add(new BlogPost.Builder(jsonBlog.getString("pubdate"),
+                                jsonBlog.getString("title"))
+                                .addTeaser(jsonBlog.getString("teaser"))
+                                .addUrl(jsonBlog.getString("url"))
+                                .build());
+                    }
+
+                    BlogPost[] blogsAsArray = new BlogPost[blogs.size()];
+                    blogsAsArray = blogs.toArray(blogsAsArray);
+
+
+                    Bundle args = new Bundle();
+                    args.putSerializable(BlogFragment.ARG_BLOG_LIST, blogsAsArray);
+                    Fragment frag = new BlogFragment();
+                    frag.setArguments(args);
+
+                    onWaitFragmentInteractionHide();
+                    loadFragment(frag);
+                } else {
+                    Log.e("ERROR!", "No data array");
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            onWaitFragmentInteractionHide();
+        }
+    }
+
+    private void loadFragment(Fragment frag) {
+        Log.wtf("Home Activity", "Started loadFragment in Home Activity");
+        FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, frag)
+                .addToBackStack(null);
+        // Commit the transaction
+        transaction.commit();
+        Log.wtf("Home Activity", "Ended loadFragment in Home Activity");
+    }
+
+    @Override
+    public void onListFragmentInteraction(SetPost set) {
+        final Bundle args = new Bundle();
+        args.putSerializable("set", set);
+//
+        SetPostFragment setpost = new SetPostFragment();
+        setpost.setArguments(args);
+        loadFragment(setpost);
+
+    }
+
+    @Override
+    public void onSetFragmentInteraction(String setUrl) {
+        try {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(setUrl));
+            startActivity(browserIntent);
+        } catch (ActivityNotFoundException e){
+            Toast.makeText(this, "Invalid url request", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
     }
 }
