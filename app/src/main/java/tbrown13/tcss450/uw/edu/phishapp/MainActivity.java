@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 
+import java.io.Serializable;
+
 import tbrown13.tcss450.uw.edu.phishapp.model.Credentials;
 
 public class MainActivity extends AppCompatActivity implements
@@ -32,10 +34,21 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLoginSuccess(Credentials creds) {
         Log.wtf("Main Activity", "Started onLoginSuccess in Main Activity");
-        Intent i = new Intent(getApplicationContext(), HomeActivity.class);
-        i.putExtra("credentials", creds);
-        startActivity(i);
+//        Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+//        i.putExtra("credentials", creds);
+//        startActivity(i);
+//        getSupportFragmentManager().popBackStack();
+        login(creds);
         Log.wtf("Main Activity", "Ended onWaitFragmentInteractionHide in Main Activity");
+    }
+
+    private void login(final Credentials credentials){
+        Intent i = new Intent(this, HomeActivity.class);
+        i.putExtra(getString(R.string.key_email), (Serializable) credentials);
+        startActivity(i);
+        //End this Activity and remove it from the Activity back stack.
+        finish();
+
     }
 
     @Override
@@ -49,12 +62,12 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onRegisterSuccess(Credentials creds){
         Log.wtf("Main Activity", "Started onRegisterSuccess in Main Activity");
-        //getSupportFragmentManager().popBackStack();
-
-        Intent i = new Intent(getApplicationContext(), HomeActivity.class);
-        i.putExtra("credentials", creds);
-        startActivity(i);
-
+//        //getSupportFragmentManager().popBackStack();
+//
+//        Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+//        i.putExtra("credentials", creds);
+//        startActivity(i);
+        login(creds);
         Log.wtf("Main Activity", "ended onRegisterSuccess in Main Activity");
    }
 

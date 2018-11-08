@@ -28,8 +28,8 @@ public class DisplayFragment extends Fragment {
 
         if(getArguments() != null){
 
-           Credentials cred = (Credentials)getArguments().getSerializable("credentials");
-            String password = getArguments().getString("pw");
+           Credentials cred = (Credentials)getArguments().getSerializable(getString(R.string.key_email));
+
             updateContent(cred.getEmail());
         }
     }

@@ -1,7 +1,9 @@
 package tbrown13.tcss450.uw.edu.phishapp;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -57,7 +59,7 @@ public class HomeActivity extends AppCompatActivity
         DisplayFragment dfrag = new DisplayFragment();
         Bundle args = new Bundle();
 
-        args.putSerializable("credentials", getIntent().getSerializableExtra("credentials"));
+        args.putSerializable(getString(R.string.key_email), getIntent().getSerializableExtra(getString(R.string.key_email)));
 
 
         dfrag.setArguments(args);
@@ -92,6 +94,11 @@ public class HomeActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+
+        if (id == R.id.action_logout){
+            logout();
             return true;
         }
 
@@ -142,6 +149,8 @@ public class HomeActivity extends AppCompatActivity
                     .onPostExecute(this::handleSetGetOnPostExecute)
                     .build().execute();
 
+        } else if (id == R.id.chatfragment){
+            loadFragment(new ChatFragment());
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -333,4 +342,27 @@ public class HomeActivity extends AppCompatActivity
             e.printStackTrace();
         }
     }
+
+    private void logout() {
+
+        SharedPreferences prefs =
+                getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        //remove the saved credentials from StoredPrefs
+        prefs.edit().remove(getString(R.string.keys_prefs_password)).apply();
+        prefs.edit().remove(getString(R.string.keys_prefs_email)).apply();
+
+
+        //close the app
+        finishAndRemoveTask();
+
+        //or close this activity and bring back the Login
+        //Intent i = new Intent(this, MainActivity.class);
+        //startActivity(i);
+        //End this Activity and remove it from the Activity back stack.
+        //finish();
+    }
+
+
 }

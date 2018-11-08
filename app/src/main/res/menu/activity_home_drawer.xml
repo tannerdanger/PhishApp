@@ -9,6 +9,10 @@
             android:icon="@drawable/ic_home_black_24dp"
             android:title="Home" />
         <item
+            android:id="@+id/chatfragment"
+            android:icon="@drawable/ic_forum_black_24dp"
+            android:title="Group Chat" />
+        <item
             android:id="@+id/blogFragment"
             android:icon="@drawable/ic_blog_black_24dp"
             android:title="Blog Posts" />

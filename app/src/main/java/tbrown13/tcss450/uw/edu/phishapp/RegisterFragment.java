@@ -249,7 +249,7 @@ public class RegisterFragment extends Fragment {
                 mListener.onRegisterSuccess(mCredentials);
             }else {
                 //register unsuccessful
-                ((TextView) getView().findViewById(R.id.login_edittext_uname))
+                ((TextView) getView().findViewById(R.id.edit_login_email))
                         .setError("Register Unsuccessful");
             }
 
@@ -261,7 +261,7 @@ public class RegisterFragment extends Fragment {
                     + e.getMessage());
 
             mListener.onWaitFragmentInteractionHide();
-            ((TextView) getView().findViewById(R.id.login_edittext_uname))
+            ((TextView) getView().findViewById(R.id.edit_login_email))
                     .setError("Login Unsuccessful");
         }
 

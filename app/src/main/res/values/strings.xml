@@ -12,6 +12,7 @@
     <string name="login_subtext">Please Log in or register</string>
     <string name="register_subtext">Please register for an account</string>
     <string name="display_success">Login Successful!</string>
+    <string name="action_logout">Logout</string>
 
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
