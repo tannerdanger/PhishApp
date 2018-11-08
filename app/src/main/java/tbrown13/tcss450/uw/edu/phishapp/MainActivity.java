@@ -16,10 +16,25 @@ public class MainActivity extends AppCompatActivity implements
         LoginFragment.OnFragmentInteractionListener,
         RegisterFragment.OnFragmentInteractionListener {
 
+    private boolean mLoadFromChatNotification = false;
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (getIntent().getExtras() != null) {
+
+            if (getIntent().getExtras().containsKey("type")) {
+                Log.d(TAG, "type of message: " + getIntent().getExtras().getString("type"));
+                mLoadFromChatNotification = getIntent().getExtras().getString("type").equals("msg");
+                Log.d(TAG, "load from chat notification: " +mLoadFromChatNotification );
+            } else {
+                Log.d(TAG, "NO MESSAGE");
+            }
+        }
 
         if (savedInstanceState == null) {
             if (findViewById(R.id.frame_main_fragment_container) != null) { //Good
@@ -45,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements
     private void login(final Credentials credentials){
         Intent i = new Intent(this, HomeActivity.class);
         i.putExtra(getString(R.string.key_email), (Serializable) credentials);
+        i.putExtra(getString(R.string.keys_intent_notifification_msg), mLoadFromChatNotification);
         startActivity(i);
         //End this Activity and remove it from the Activity back stack.
         finish();

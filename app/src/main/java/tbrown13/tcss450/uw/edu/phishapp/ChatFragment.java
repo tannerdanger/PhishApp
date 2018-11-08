@@ -1,7 +1,10 @@
 package tbrown13.tcss450.uw.edu.phishapp;
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +21,7 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import tbrown13.tcss450.uw.edu.phishapp.utils.MyFirebaseMessagingService;
 import tbrown13.tcss450.uw.edu.phishapp.utils.SendPostAsyncTask;
 
 
@@ -31,6 +35,7 @@ public class ChatFragment extends Fragment {
 
     private TextView mMessageOutputTextView;
     private EditText mMessageInputEditText;
+    private FirebaseMessageReciever mFirebaseMessageReciever;
 
     private String mEmail;
     private String mSendUrl;
@@ -115,6 +120,56 @@ public class ChatFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
+    /**
+     * A BroadcastReceiver setup to listen for messages sent from MyFirebaseMessagingService
+     * that Android allows to run all the time.
+     */
+    private class FirebaseMessageReciever extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i("FCM Chat Frag", "start onRecieve");
+            if(intent.hasExtra("DATA")) {
+
+                String data = intent.getStringExtra("DATA");
+                JSONObject jObj = null;
+                try {
+                    jObj = new JSONObject(data);
+                    if(jObj.has("message") && jObj.has("sender")) {
+
+                        String sender = jObj.getString("sender");
+                        String msg = jObj.getString("message");
+
+                        mMessageOutputTextView.append(sender + ":" + msg);
+                        mMessageOutputTextView.append(System.lineSeparator());
+                        mMessageOutputTextView.append(System.lineSeparator());
+                        Log.i("FCM Chat Frag", sender + " " + msg);
+                    }
+                } catch (JSONException e) {
+                    Log.e("JSON PARSE", e.toString());
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mFirebaseMessageReciever == null) {
+            mFirebaseMessageReciever = new FirebaseMessageReciever();
+        }
+        IntentFilter iFilter = new IntentFilter(MyFirebaseMessagingService.RECEIVED_NEW_MESSAGE);
+        getActivity().registerReceiver(mFirebaseMessageReciever, iFilter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mFirebaseMessageReciever != null){
+            getActivity().unregisterReceiver(mFirebaseMessageReciever);
+        }
+    }
+
 
 
 }

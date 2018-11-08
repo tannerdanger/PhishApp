@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import tbrown13.tcss450.uw.edu.phishapp.blog.BlogPost;
+import tbrown13.tcss450.uw.edu.phishapp.model.Credentials;
 import tbrown13.tcss450.uw.edu.phishapp.set.SetPost;
 
 public class HomeActivity extends AppCompatActivity
@@ -37,6 +38,8 @@ public class HomeActivity extends AppCompatActivity
         WaitFragment.OnFragmentInteractionListener,
         SetFragment.OnListFragmentInteractionListener,
         SetPostFragment.OnFragmentInteractionListener{
+
+    public String mEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,16 +59,36 @@ public class HomeActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //Set display to display fragment
-        DisplayFragment dfrag = new DisplayFragment();
-        Bundle args = new Bundle();
+        if(savedInstanceState == null ){
+            if (findViewById(R.id.fragmentContainer) != null) {
+                Credentials credentials = (Credentials) getIntent()
+                        .getSerializableExtra(getString(R.string.key_email));
+                String emailAddress = mEmail = credentials.getEmail();
+                final Bundle args = new Bundle();
+                args.putString(getString(R.string.key_email), emailAddress);
 
-        args.putSerializable(getString(R.string.key_email), getIntent().getSerializableExtra(getString(R.string.key_email)));
+                Fragment fragment;
+                if (getIntent().getBooleanExtra(getString(R.string.keys_intent_notifification_msg), false)) {
+                    fragment = new ChatFragment();
+                } else {
+                    fragment = new DisplayFragment();
+                    fragment.setArguments(args);
+                }
 
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragmentContainer, fragment)
+                        .commit();
+            }
 
-        dfrag.setArguments(args);
-        loadFragment(dfrag);
-
-
+        }
+//        DisplayFragment dfrag = new DisplayFragment();
+//        Bundle args = new Bundle();
+//
+//        args.putSerializable(getString(R.string.key_email), getIntent().getSerializableExtra(getString(R.string.key_email)));
+//
+//
+//        dfrag.setArguments(args);
+//        loadFragment(dfrag);
     }
 
     @Override

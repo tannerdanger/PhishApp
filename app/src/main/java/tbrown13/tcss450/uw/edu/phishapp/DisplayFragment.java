@@ -28,9 +28,9 @@ public class DisplayFragment extends Fragment {
 
         if(getArguments() != null){
 
-           Credentials cred = (Credentials)getArguments().getSerializable(getString(R.string.key_email));
-
-            updateContent(cred.getEmail());
+//           Credentials cred = (Credentials)getArguments().getSerializable(getString(R.string.key_email));
+            String email = (String) getArguments().getSerializable(getString(R.string.key_email));
+            updateContent(email);
         }
     }
 
@@ -41,10 +41,10 @@ public class DisplayFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_display, container, false);
     }
 
-    public void updateContent(String username){
+    public void updateContent(String email){
 
         TextView tv = getActivity().findViewById(R.id.display_textview_username);
-        tv.setText(username);
+        tv.setText(email);
     }
 
 }
